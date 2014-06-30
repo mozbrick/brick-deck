@@ -128,16 +128,22 @@
 
       if (!card.selected) { card.selected = true; }
 
-      // set attributes, set transitionend listener, skip a frame set transition attribute
-      card.setAttribute('show','');
-      card.setAttribute('transition-direction', direction);
-      var transitionendHandler = function() {
-        card.dispatchEvent(new CustomEvent('show',{'bubbles': true}));
-        card.removeEventListener('transitionend', transitionendHandler);
-      };
-      card.addEventListener('transitionend', transitionendHandler);
 
-      skipFrame(function(){ card.setAttribute('transition', 'show'); });
+      var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
+      if (hasTransition) {
+        // set attributes, set transitionend listener, skip a frame set transition attribute
+        card.setAttribute('show','');
+        card.setAttribute('transition-direction', direction);
+        var transitionendHandler = function() {
+          card.dispatchEvent(new CustomEvent('show',{'bubbles': true}));
+          card.removeEventListener('transitionend', transitionendHandler);
+        };
+        card.addEventListener('transitionend', transitionendHandler);
+        skipFrame(function(){ card.setAttribute('transition', 'show'); });
+      } else {
+        card.dispatchEvent(new CustomEvent('show',{'bubbles': true}));
+      }
+
     }
   };
 
@@ -148,18 +154,24 @@
       if (card.selected) {
         card.selected = false;
       }
-      // set attributes, set transitionend listener, skip a frame set transition attribute
       card.removeAttribute('show');
-      card.setAttribute('hide', '');
-      card.setAttribute('transition-direction', direction || 'reverse');
-      var transitionendHandler = function() {
-        card.removeAttribute('hide');
-        card.removeAttribute('transition');
-        card.removeAttribute('transition-direction');
+      var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
+      if (hasTransition) {
+        // set attributes, set transitionend listener, skip a frame set transition attribute
+        card.setAttribute('hide', '');
+        card.setAttribute('transition-direction', direction || 'reverse');
+        var transitionendHandler = function() {
+          card.removeAttribute('hide');
+          card.removeAttribute('transition');
+          card.removeAttribute('transition-direction');
+          card.dispatchEvent(new CustomEvent('hide',{'bubbles': true}));
+          card.removeEventListener('transitionend', transitionendHandler);
+        };
+        card.addEventListener('transitionend', transitionendHandler);
+        skipFrame(function(){ card.setAttribute('transition', 'show'); });
+      } else {
         card.dispatchEvent(new CustomEvent('hide',{'bubbles': true}));
-      };
-      card.addEventListener('transitionend', transitionendHandler);
-      skipFrame(function(){ card.setAttribute('transition', 'show'); });
+      }
     }
   };
 
@@ -179,7 +191,8 @@
     },
     'cards': {
       get: function () {
-        return this.querySelectorAll("brick-card");
+        var cardList = this.querySelectorAll("brick-card");
+        return Array.prototype.slice.call(cardList);
       }
     },
     'selectedCard': {

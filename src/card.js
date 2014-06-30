@@ -2,6 +2,10 @@
 
   var BrickCardElementPrototype = Object.create(HTMLElement.prototype);
 
+  BrickCardElementPrototype.createdCallback = function () {
+    this.ns = {};
+  };
+
   BrickCardElementPrototype.attachedCallback = function () {
     this.ns = {};
     this.ns.selected = this.hasAttribute("selected");
