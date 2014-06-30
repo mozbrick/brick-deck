@@ -93,7 +93,7 @@ Poperty               | Type      | Description
 `selectedIndex`       | *string*  | corresponds to the `selected-index` attribute 
 `loop`                | *boolean* | corresponds to the `loop` attribute 
 `cards` (getter only) | *array*   | array of all the brick-card elements contained in an brick-deck
-`selectedCard (getter only)` | *brick-card* | the brick-card DOM element that is currently displayed by the deck. Returns null if no such card exists.
+`selectedCard` (getter only) | *brick-card* | the brick-card DOM element that is currently displayed by the deck. Returns null if no such card exists.
 
 ## Methods
 
