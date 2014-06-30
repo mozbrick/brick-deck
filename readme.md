@@ -46,7 +46,7 @@
       <i>string</i>
       <ul>
         <li><code>slide-left</code></li>
-        <li><code>slide-right`</li>
+        <li><code>slide-right</li>
         <li><code>slide-up</code></li>
         <li><code>slide-down</code></li>
         <li><code>fade-scale</code></li>
