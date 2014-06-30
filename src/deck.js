@@ -45,21 +45,25 @@
     }
   }
 
-  // check if a card in in a deck and has the given selected state
-  function checkCard(deck, card, selected){
+  // check if a card is a card in a deck
+  function checkCard(deck, card){
     return card &&
-           (selected ? card === deck.selectedCard : card !== deck.selectedCard) &&
            deck === card.parentNode &&
            card.nodeName.toLowerCase() === 'brick-card';
+  }
+
+  // check if a card is the selected card in a deck
+  function checkSelection(deck, card) {
+    return card === deck.selectedCard;
   }
 
   function shuffle(deck, side, direction){
     var getters = sides[side];
     var selected = deck.selectedCard && deck.selectedCard[getters[0]];
     if (selected) {
-      deck.showCard(selected, direction);
+      deck.showCard(selected, {'direction': direction});
     } else if (deck.loop || deck.selectedIndex === -1) {
-      deck.showCard(deck[getters[1]], direction);
+      deck.showCard(deck[getters[1]], {'direction': direction});
     }
   }
 
@@ -100,37 +104,38 @@
     shuffle(this, 'previous', direction);
   };
 
-  BrickDeckElementPrototype.showCard = function(item, direction){
+  BrickDeckElementPrototype.showCard = function(item, options){
+    options = options || {};
+    var direction = options.direction;
+    var skipTransition = options.skipTransition;
     var card = getCard(this, item);
 
-    if (checkCard(this, card, false)) {
-      var selected = this.ns.selected;
-      var currentIndex = indexOfCard(this, selected);
+    if (checkCard(this, card) && !checkSelection(this, card)) {
+      var selectedCard = this.ns.selectedCard;
+      var currentIndex = indexOfCard(this, selectedCard);
       var nextIndex = indexOfCard(this, card);
-
       if (!direction) {
         direction = nextIndex > currentIndex ? 'forward' : 'reverse';
         // if looping is turned on, check if the other way round is shorter
         if (this.loop) {
+          // the distance between two cards
           var dist = nextIndex - currentIndex;
+          // the distance between two cards when skipping over the end of the deck
           var distLooped = this.cards.length - Math.max(nextIndex,currentIndex) + Math.min(nextIndex,currentIndex);
+          // set the direction if the looped way is shorter
           if (Math.abs(distLooped) < Math.abs(dist)) {
             direction = nextIndex < currentIndex ? 'forward' : 'reverse';
           }
         }
       }
-
-      if (selected) { this.hideCard(selected, direction); }
-
-      this.ns.selected = card;
+      // hide the old card
+      if (selectedCard) { this.hideCard(selectedCard, direction); }
+      this.ns.selectedCard = card;
       this.ns.selectedIndex = nextIndex;
       this.setAttribute("selected-index", nextIndex);
-
       if (!card.selected) { card.selected = true; }
-
-
       var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
-      if (hasTransition) {
+      if (!skipTransition && hasTransition) {
         // set attributes, set transitionend listener, skip a frame set transition attribute
         card.setAttribute('show','');
         card.setAttribute('transition-direction', direction);
@@ -143,17 +148,14 @@
       } else {
         card.dispatchEvent(new CustomEvent('show',{'bubbles': true}));
       }
-
     }
   };
 
   BrickDeckElementPrototype.hideCard = function(item, direction){
     var card = getCard(this, item);
-    if (checkCard(this, card, true)) {
-      this.ns.selected = null;
-      if (card.selected) {
-        card.selected = false;
-      }
+    if (checkCard(this, card) && checkSelection(this, card)) {
+      this.ns.selectedCard = null;
+      if (card.selected) { card.selected = false; }
       card.removeAttribute('show');
       var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
       if (hasTransition) {
@@ -197,7 +199,7 @@
     },
     'selectedCard': {
       get: function() {
-        return this.ns.selected || null;
+        return this.ns.selectedCard || null;
       },
       set: function(card) {
         this.showCard(card);
@@ -211,13 +213,13 @@
         var index = Number(value);
         var card = this.cards[index];
         if (card) {
-          if (card !== this.ns.selected) {
+          if (card !== this.ns.selectedCard) {
             this.showCard(card);
           }
         } else {
           this.removeAttribute('selected-index');
-          if (this.ns.selected) {
-            this.hideCard(this.ns.selected);
+          if (this.ns.selectedCard) {
+            this.hideCard(this.ns.selectedCard);
           }
         }
       }

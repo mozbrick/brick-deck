@@ -7,13 +7,12 @@
   };
 
   BrickCardElementPrototype.attachedCallback = function () {
-    this.ns = {};
     this.ns.selected = this.hasAttribute("selected");
     var deck = this.parentNode;
     if (deck.nodeName.toLowerCase() === 'brick-deck') {
       this.ns.deck = deck;
       if (this !== deck.selectedCard && this.selected) {
-        deck.showCard(this);
+        deck.showCard(this, {'skipTransition':true});
       }
     }
   };
@@ -24,8 +23,6 @@
       if (this === deck.selectedCard) {
         deck.selectedCard = null;
         deck.removeAttribute('selected-index');
-      } else {
-        deck.showCard(deck.selectedCard);
       }
       this.ns.deck = null;
     }
