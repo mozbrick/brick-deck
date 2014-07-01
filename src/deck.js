@@ -55,6 +55,7 @@
   function shuffle(deck, side, direction){
     var getters = sides[side];
     var selected = deck.selectedCard && deck.selectedCard[getters[0]];
+
     if (selected) {
       deck.showCard(selected, {'direction': direction});
     } else if (deck.loop || deck.selectedIndex === -1) {
@@ -107,7 +108,6 @@
     var direction = options.direction;
     var skipTransition = options.skipTransition;
     var card = getCard(this, item);
-
     if (!checkCard(this, card) || (card === this.selectedCard)) {
       return;
     }

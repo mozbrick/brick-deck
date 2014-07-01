@@ -7,7 +7,6 @@
   };
 
   BrickCardElementPrototype.attachedCallback = function () {
-    this.ns.selected = this.hasAttribute("selected");
     var deck = this.parentNode;
     if (deck.nodeName.toLowerCase() === 'brick-deck') {
       this.ns.deck = deck;
@@ -37,7 +36,13 @@
   // Attribute handlers
   var attrs = {
     'selected': function (oldVal, newVal) {
-      this.ns.selected = newVal;
+      var deck = this.ns.deck;
+      if (!deck) { return; }
+      if (newVal !== null) {
+        if (this !== deck.selectedCard) { deck.showCard(this); }
+      } else {
+        if (this === deck.selectedCard) { deck.hideCard(this); }
+      }
     },
   };
 
@@ -45,24 +50,13 @@
   Object.defineProperties(BrickCardElementPrototype, {
     'selected': {
       get : function () {
-        return this.ns.selected;
+        return this.hasAttribute('selected');
       },
       set : function (newVal) {
-        var deck = this.ns.deck;
-        if (deck) {
-          if (newVal) {
-            if (this === deck.selectedCard) {
-              this.setAttribute("selected");
-            } else {
-              deck.showCard(this);
-            }
-          } else {
-            if (this === deck.selectedCard) {
-              deck.hideCard(this);
-            } else {
-              this.removeAttribute("selected");
-            }
-          }
+        if (newVal) {
+          this.setAttribute('selected','');
+        } else {
+          this.removeAttribute('selected');
         }
       }
     },
