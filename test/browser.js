@@ -11,14 +11,10 @@ before(function (done) {
 var cardCount = 10;
 
 window.addEventListener('WebComponentsReady', function() {
-
   // Add the HTMLImport for the custom element.
   document.head.innerHTML += '<link rel="import" id="el" href="/base/src/brick-deck.html">';
-
   document.querySelector('#el').addEventListener('load', function() {
-
     ready();
-
   });
 });
 
@@ -87,25 +83,26 @@ describe("in the brick-deck", function(){
   });
 
   describe("the second card", function(){
-
     it("should not have attribute selected and show and css style display none", function(){
       var deck = document.querySelector("brick-deck");
       var card = deck.cards[1];
       expect(window.getComputedStyle(card).display).to.equal("none");
       expect(card.getAttribute("selected")).to.be.null;
     });
-
   });
 
   describe("changing of cards", function(){
+    var deck, oldIndex, newIndex, newCard,oldCard;
+
+    beforeEach(function() {
+      deck = document.querySelector("brick-deck");
+      oldIndex = parseInt(deck.getAttribute("selected-index"));
+      newIndex = oldIndex + 1;
+      newCard = deck.cards[newIndex];
+      oldCard = deck.cards[oldIndex];
+    });
 
     it("should work using the showCard() function", function(){
-      var deck = document.querySelector("brick-deck");
-      var oldIndex = parseInt(deck.getAttribute("selected-index"));
-      var newIndex = oldIndex + 1;
-      var newCard = deck.cards[newIndex];
-      var oldCard = deck.cards[oldIndex];
-
       deck.showCard(newIndex);
 
       expect(window.getComputedStyle(oldCard).display).to.equal("none");
@@ -115,12 +112,6 @@ describe("in the brick-deck", function(){
     });
 
     it("should work by changing the selected-index attribute", function(){
-      var deck = document.querySelector("brick-deck");
-      var oldIndex = parseInt(deck.getAttribute("selected-index"));
-      var newIndex = oldIndex + 1;
-      var oldCard = deck.cards[oldIndex];
-      var newCard = deck.cards[newIndex];
-
       deck.setAttribute("selected-index", newIndex);
 
       expect(window.getComputedStyle(oldCard).display).to.equal("none");
@@ -130,12 +121,6 @@ describe("in the brick-deck", function(){
     });
 
     it("should work by changing the selectedIndex property", function(){
-      var deck = document.querySelector("brick-deck");
-      var oldIndex = parseInt(deck.getAttribute("selected-index"));
-      var newIndex = oldIndex + 1;
-      var oldCard = deck.cards[oldIndex];
-      var newCard = deck.cards[newIndex];
-
       deck.selectedIndex = newIndex;
 
       expect(window.getComputedStyle(oldCard).display).to.equal("none");
@@ -145,12 +130,6 @@ describe("in the brick-deck", function(){
     });
 
     it("should work by triggering reveal on a card", function(){
-      var deck = document.querySelector("brick-deck");
-      var oldIndex = parseInt(deck.getAttribute("selected-index"));
-      var newIndex = oldIndex + 1;
-      var oldCard = deck.cards[oldIndex];
-      var newCard = deck.cards[newIndex];
-
       newCard.dispatchEvent(new CustomEvent("reveal",{bubbles: true}));
 
       expect(window.getComputedStyle(oldCard).display).to.equal("none");
@@ -160,12 +139,6 @@ describe("in the brick-deck", function(){
     });
 
     it("should work by setting selected attribute on a card", function(){
-      var deck = document.querySelector("brick-deck");
-      var oldIndex = parseInt(deck.getAttribute("selected-index"));
-      var newIndex = oldIndex + 1;
-      var oldCard = deck.cards[oldIndex];
-      var newCard = deck.cards[newIndex];
-
       newCard.setAttribute("selected","");
 
       expect(window.getComputedStyle(oldCard).display).to.equal("none");
@@ -175,12 +148,6 @@ describe("in the brick-deck", function(){
     });
 
     it("should work by setting selected property on a card", function(){
-      var deck = document.querySelector("brick-deck");
-      var oldIndex = parseInt(deck.getAttribute("selected-index"));
-      var newIndex = oldIndex + 1;
-      var oldCard = deck.cards[oldIndex];
-      var newCard = deck.cards[newIndex];
-
       newCard.selected = true;
 
       expect(window.getComputedStyle(oldCard).display).to.equal("none");
@@ -190,12 +157,6 @@ describe("in the brick-deck", function(){
     });
 
     it("should work by using nextCard and previousCard", function(){
-      var deck = document.querySelector("brick-deck");
-      var oldIndex = parseInt(deck.getAttribute("selected-index"));
-      var newIndex = oldIndex + 1;
-      var oldCard = deck.cards[oldIndex];
-      var newCard = deck.cards[newIndex];
-
       deck.nextCard();
       expect(window.getComputedStyle(oldCard).display).to.equal("none");
       expect(oldCard.getAttribute("selected")).to.be.null;
