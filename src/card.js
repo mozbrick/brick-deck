@@ -38,6 +38,8 @@
     'selected': function (oldVal, newVal) {
       var deck = this.ns.deck;
       if (!deck) { return; }
+      // check for null because empty string is true
+      // for our booleon attribute
       if (newVal !== null) {
         if (this !== deck.selectedCard) { deck.showCard(this); }
       } else {

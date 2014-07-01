@@ -135,9 +135,9 @@
     this.setAttribute("selected-index", nextIndex);
     if (!card.selected) { card.selected = true; }
     var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
+    card.setAttribute('show','');
     if (!skipTransition && hasTransition) {
       // set attributes, set transitionend listener, skip a frame set transition attribute
-      card.setAttribute('show','');
       card.setAttribute('transition-direction', direction);
       var transitionendHandler = function() {
         card.dispatchEvent(new CustomEvent('show',{'bubbles': true}));
