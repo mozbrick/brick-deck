@@ -52,11 +52,6 @@
            card.nodeName.toLowerCase() === 'brick-card';
   }
 
-  // check if a card is the selected card in a deck
-  function checkSelection(deck, card) {
-    return card === deck.selectedCard;
-  }
-
   function shuffle(deck, side, direction){
     var getters = sides[side];
     var selected = deck.selectedCard && deck.selectedCard[getters[0]];
@@ -69,8 +64,11 @@
 
   var BrickDeckElementPrototype = Object.create(HTMLElement.prototype);
 
-  BrickDeckElementPrototype.attachedCallback = function() {
+  BrickDeckElementPrototype.createdCallback = function() {
     this.ns = {};
+  };
+
+  BrickDeckElementPrototype.attachedCallback = function() {
     this.revealHandler = delegate('brick-card', function(e) {
       e.currentTarget.showCard(this);
     });
@@ -110,70 +108,72 @@
     var skipTransition = options.skipTransition;
     var card = getCard(this, item);
 
-    if (checkCard(this, card) && !checkSelection(this, card)) {
-      var selectedCard = this.ns.selectedCard;
-      var currentIndex = indexOfCard(this, selectedCard);
-      var nextIndex = indexOfCard(this, card);
-      if (!direction) {
-        direction = nextIndex > currentIndex ? 'forward' : 'reverse';
-        // if looping is turned on, check if the other way round is shorter
-        if (this.loop) {
-          // the distance between two cards
-          var dist = nextIndex - currentIndex;
-          // the distance between two cards when skipping over the end of the deck
-          var distLooped = this.cards.length - Math.max(nextIndex,currentIndex) + Math.min(nextIndex,currentIndex);
-          // set the direction if the looped way is shorter
-          if (Math.abs(distLooped) < Math.abs(dist)) {
-            direction = nextIndex < currentIndex ? 'forward' : 'reverse';
-          }
+    if (!checkCard(this, card) || (card === this.selectedCard)) {
+      return;
+    }
+    var selectedCard = this.ns.selectedCard;
+    var currentIndex = indexOfCard(this, selectedCard);
+    var nextIndex = indexOfCard(this, card);
+    if (!direction) {
+      direction = nextIndex > currentIndex ? 'forward' : 'reverse';
+      // if looping is turned on, check if the other way round is shorter
+      if (this.loop) {
+        // the distance between two cards
+        var dist = nextIndex - currentIndex;
+        // the distance between two cards when skipping over the end of the deck
+        var distLooped = this.cards.length - Math.max(nextIndex,currentIndex) + Math.min(nextIndex,currentIndex);
+        // set the direction if the looped way is shorter
+        if (Math.abs(distLooped) < Math.abs(dist)) {
+          direction = nextIndex < currentIndex ? 'forward' : 'reverse';
         }
       }
-      // hide the old card
-      if (selectedCard) { this.hideCard(selectedCard, direction); }
-      this.ns.selectedCard = card;
-      this.ns.selectedIndex = nextIndex;
-      this.setAttribute("selected-index", nextIndex);
-      if (!card.selected) { card.selected = true; }
-      var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
-      if (!skipTransition && hasTransition) {
-        // set attributes, set transitionend listener, skip a frame set transition attribute
-        card.setAttribute('show','');
-        card.setAttribute('transition-direction', direction);
-        var transitionendHandler = function() {
-          card.dispatchEvent(new CustomEvent('show',{'bubbles': true}));
-          card.removeEventListener('transitionend', transitionendHandler);
-        };
-        card.addEventListener('transitionend', transitionendHandler);
-        skipFrame(function(){ card.setAttribute('transition', 'show'); });
-      } else {
+    }
+    // hide the old card
+    if (selectedCard) { this.hideCard(selectedCard, direction); }
+    this.ns.selectedCard = card;
+    this.ns.selectedIndex = nextIndex;
+    this.setAttribute("selected-index", nextIndex);
+    if (!card.selected) { card.selected = true; }
+    var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
+    if (!skipTransition && hasTransition) {
+      // set attributes, set transitionend listener, skip a frame set transition attribute
+      card.setAttribute('show','');
+      card.setAttribute('transition-direction', direction);
+      var transitionendHandler = function() {
         card.dispatchEvent(new CustomEvent('show',{'bubbles': true}));
-      }
+        card.removeEventListener('transitionend', transitionendHandler);
+      };
+      card.addEventListener('transitionend', transitionendHandler);
+      skipFrame(function(){ card.setAttribute('transition', 'show'); });
+    } else {
+      card.dispatchEvent(new CustomEvent('show',{'bubbles': true}));
     }
   };
 
   BrickDeckElementPrototype.hideCard = function(item, direction){
     var card = getCard(this, item);
-    if (checkCard(this, card) && checkSelection(this, card)) {
-      this.ns.selectedCard = null;
-      if (card.selected) { card.selected = false; }
-      card.removeAttribute('show');
-      var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
-      if (hasTransition) {
-        // set attributes, set transitionend listener, skip a frame set transition attribute
-        card.setAttribute('hide', '');
-        card.setAttribute('transition-direction', direction || 'reverse');
-        var transitionendHandler = function() {
-          card.removeAttribute('hide');
-          card.removeAttribute('transition');
-          card.removeAttribute('transition-direction');
-          card.dispatchEvent(new CustomEvent('hide',{'bubbles': true}));
-          card.removeEventListener('transitionend', transitionendHandler);
-        };
-        card.addEventListener('transitionend', transitionendHandler);
-        skipFrame(function(){ card.setAttribute('transition', 'show'); });
-      } else {
+    if (!checkCard(this, card) || (card !== this.selectedCard)) {
+      return;
+    }
+    this.ns.selectedCard = null;
+    if (card.selected) { card.selected = false; }
+    card.removeAttribute('show');
+    var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
+    if (hasTransition) {
+      // set attributes, set transitionend listener, skip a frame set transition attribute
+      card.setAttribute('hide', '');
+      card.setAttribute('transition-direction', direction || 'reverse');
+      var transitionendHandler = function() {
+        card.removeAttribute('hide');
+        card.removeAttribute('transition');
+        card.removeAttribute('transition-direction');
         card.dispatchEvent(new CustomEvent('hide',{'bubbles': true}));
-      }
+        card.removeEventListener('transitionend', transitionendHandler);
+      };
+      card.addEventListener('transitionend', transitionendHandler);
+      skipFrame(function(){ card.setAttribute('transition', 'show'); });
+    } else {
+      card.dispatchEvent(new CustomEvent('hide',{'bubbles': true}));
     }
   };
 
