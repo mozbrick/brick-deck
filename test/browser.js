@@ -1,5 +1,5 @@
 /* jshint expr: true */
-/* global chai, before, describe, it */
+/* global chai, before, describe, it, beforeEach, afterEach*/
 
 var expect = chai.expect;
 
@@ -25,9 +25,6 @@ window.addEventListener('WebComponentsReady', function() {
 describe("in the brick-deck", function(){
 
   beforeEach(function(done){
-    // reset the page content
-    document.body.innerHTML = "";
-
     // Create the elements.
     var deck = document.createElement('brick-deck');
     deck.id = 'deck';
@@ -54,7 +51,12 @@ describe("in the brick-deck", function(){
       deck.appendChild(cards[i]);
     }
     document.body.appendChild(deck);
+  });
 
+  afterEach(function(){
+    // clean up
+    var deck = document.querySelector("brick-deck");
+    document.body.removeChild(deck);
   });
 
   describe("deck.cards", function(){
