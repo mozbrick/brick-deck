@@ -158,7 +158,6 @@
     }
     this.ns.selectedCard = null;
     if (card.selected) { card.selected = false; }
-    card.removeAttribute('show');
     var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
     if (hasTransition) {
       // set attributes, set transitionend listener, skip a frame set transition attribute
