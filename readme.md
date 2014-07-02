@@ -49,7 +49,6 @@
         <li><code>slide-right</li>
         <li><code>slide-up</code></li>
         <li><code>slide-down</code></li>
-        <li><code>fade-scale</code></li>
       </ul>
     </td>
     <td>-</td>
