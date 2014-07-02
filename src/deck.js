@@ -143,7 +143,7 @@
         card.removeEventListener('transitionend', transitionendHandler);
       };
       card.addEventListener('transitionend', transitionendHandler);
-      skipFrame(function(){ card.setAttribute('transition', 'show'); });
+      skipFrame(function(){ card.setAttribute('transition', ''); });
     } else {
       card.dispatchEvent(new CustomEvent('show',{'bubbles': true}));
     }
@@ -169,7 +169,7 @@
         card.removeEventListener('transitionend', transitionendHandler);
       };
       card.addEventListener('transitionend', transitionendHandler);
-      skipFrame(function(){ card.setAttribute('transition', 'show'); });
+      skipFrame(function(){ card.setAttribute('transition', ''); });
     } else {
       card.dispatchEvent(new CustomEvent('hide',{'bubbles': true}));
     }

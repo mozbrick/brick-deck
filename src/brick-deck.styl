@@ -4,6 +4,7 @@
 $slide-duration = 0.4s;
 
 brick-deck {
+
   display: block;
   position: relative;
   overflow: hidden;
@@ -22,92 +23,116 @@ brick-deck {
     box-sizing(border-box);
     transformStyle(preserve-3d);
     transformed(translate(0%, 0%) scale(1));
-
     &[selected], &[transition] {
       display: block;
     }
   }
-}
 
-/*** General Slide Setup ***/
+  &[transition-type^="slide"] > brick-card,
+  & > brick-card[transition-type^="slide"] {
+    z-index: 1;
+  }
 
-brick-deck[transition-type^="slide"] > brick-card,
-brick-deck > brick-card[transition-type^="slide"] {
-  z-index: 1;
-}
+  &[transition-type^="slide"] > brick-card[transition-direction="reverse"],
+  & > brick-card[transition-type^="slide"][transition-direction="reverse"] {
+    z-index: 2;
+  }
 
-brick-deck[transition-type^="slide"] > brick-card[transition-direction="reverse"],
-brick-deck > brick-card[transition-type^="slide"][transition-direction="reverse"] {
-  z-index: 2;
-}
+  &[transition-type^=slide] > brick-card,
+  & > brick-card[transition-type^="slide"] {
+    -webkit-transition: -webkit-transform $slide-duration ease;
+    transition: transform $slide-duration ease;
+  }
 
-brick-deck[transition-type^="slide"] > brick-card,
-brick-deck > brick-card[transition-type^="slide"],
-brick-deck[transition-type^="slide"] > brick-card[hide],
-brick-deck > brick-card[hide][transition-type^="slide"] {
-  -webkit-transition: -webkit-transform $slide-duration ease;
-  -moz-transition: -moz-transform $slide-duration ease;
-  -ms-transition: -ms-transform $slide-duration ease;
-  -o-transition: -o-transform $slide-duration ease;
-  transition: transform $slide-duration ease;
-}
+  // transition-type on the deck
+  &[transition-type="slide-right"] > brick-card  {
+    &[transition-direction="forward"],
+    &[transition-direction="reverse"][hide] {
+      transformed(translate(-100%, 0));
+    }
+    &[transition-direction="reverse"],
+    &[transition-direction="forward"][hide] {
+      transformed(translate(100%, 0));
+    }
+  }
+  &[transition-type="slide-left"] > brick-card {
+    &[transition-direction="forward"],
+    &[transition-direction="reverse"][hide] {
+      transformed(translate(100%, 0));
+    }
+    &[transition-direction="reverse"],
+    &[transition-direction="forward"][hide] {
+      transformed(translate(-100%, 0));
+    }
+  }
+  &[transition-type="slide-up"] > brick-card {
+    &[transition-direction="forward"],
+    &[transition-direction="reverse"][hide] {
+      transformed(translate(0, 100%));
+    }
+    &[transition-direction="reverse"],
+    &[transition-direction="forward"][hide] {
+      transformed(translate(0, -100%));
+    }
+  }
+  &[transition-type="slide-down"] > brick-card {
+    &[transition-direction="forward"],
+    &[transition-direction="reverse"][hide] {
+      transformed(translate(0, -100%));
+    }
+    &[transition-direction="reverse"],
+    &[transition-direction="forward"][hide] {
+      transformed(translate(0, 100%));
+    }
+  }
+  &[transition-type^="slide"] > brick-card[transition] {
+    transformed(translate(0, 0));
+  }
 
-/*** Right/Left Slide Styles ***/
-
-brick-deck[transition-type="slide-right"] > brick-card[transition-direction="forward"],
-brick-deck > brick-card[transition-direction="forward"][transition-type="slide-right"],
-brick-deck[transition-type="slide-right"] > brick-card[hide][transition-direction="reverse"],
-brick-deck > brick-card[hide][transition-direction="reverse"][transition-type="slide-right"],
-
-brick-deck[transition-type="slide-left"] > brick-card[transition-direction="reverse"],
-brick-deck > brick-card[transition-direction="reverse"][transition-type="slide-left"],
-brick-deck[transition-type="slide-left"] > brick-card[hide][transition-direction="forward"],
-brick-deck > brick-card[hide][transition-direction="forward"][transition-type="slide-left"] {
-  transformed(translate(-100%, 0));
-}
-
-
-brick-deck[transition-type="slide-right"] > brick-card[transition-direction="reverse"],
-brick-deck > brick-card[transition-direction="reverse"][transition-type="slide-right"],
-brick-deck[transition-type="slide-right"] > brick-card[hide][transition-direction="forward"],
-brick-deck > brick-card[hide][transition-direction="forward"][transition-type="slide-right"],
-
-brick-deck[transition-type="slide-left"] > brick-card[transition-direction="forward"],
-brick-deck > brick-card[transition-direction="forward"][transition-type="slide-left"],
-brick-deck[transition-type="slide-left"] > brick-card[hide][transition-direction="reverse"],
-brick-deck > brick-card[hide][transition-direction="reverse"][transition-type="slide-left"] {
-  transformed(translate(100%, 0));
-}
-
-/*** Up/Down Slide Styles ***/
-
-brick-deck[transition-type="slide-up"] > brick-card[transition-direction="reverse"],
-brick-deck > brick-card[transition-direction="reverse"][transition-type="slide-up"],
-brick-deck[transition-type="slide-up"] > brick-card[hide][transition-direction="forward"],
-brick-deck > brick-card[hide][transition-direction="forward"][transition-type="slide-up"],
-
-brick-deck[transition-type="slide-down"] > brick-card[transition-direction="forward"],
-brick-deck > brick-card[transition-direction="forward"][transition-type="slide-down"],
-brick-deck[transition-type="slide-down"] > brick-card[hide][transition-direction="reverse"],
-brick-deck > brick-card[hide][transition-direction="reverse"][transition-type="slide-down"] {
-  transformed(translate(0, -100%));
-}
-
-brick-deck[transition-type="slide-up"] > brick-card[transition-direction="forward"],
-brick-deck > brick-card[transition-direction="forward"][transition-type="slide-up"],
-brick-deck[transition-type="slide-up"] > brick-card[hide][transition-direction="reverse"],
-brick-deck > brick-card[hide][transition-direction="reverse"][transition-type="slide-up"],
-
-brick-deck[transition-type="slide-down"] > brick-card[transition-direction="reverse"],
-brick-deck > brick-card[transition-direction="reverse"][transition-type="slide-down"],
-brick-deck[transition-type="slide-down"] > brick-card[hide][transition-direction="forward"],
-brick-deck > brick-card[hide][transition-direction="forward"][transition-type="slide-down"] {
-  transformed(translate(0,100%));
-}
-
-/*** General Slide Show State ***/
-
-brick-deck[transition-type^="slide"] > brick-card[transition],
-brick-deck > brick-card[transition][transition-type^="slide"] {
-  transformed(translate(0, 0));
+  // transition-type on the card
+  & > brick-card {
+    &[transition-type="slide-right"] {
+      &[transition-direction="forward"],
+      &[transition-direction="reverse"][hide] {
+        transformed(translate(-100%, 0));
+      }
+      &[transition-direction="reverse"],
+      &[transition-direction="forward"][hide] {
+        transformed(translate(100%, 0));
+      }
+    }
+    &[transition-type="slide-left"] {
+      &[transition-direction="forward"],
+      &[transition-direction="reverse"][hide] {
+        transformed(translate(100%, 0));
+      }
+      &[transition-direction="reverse"],
+      &[transition-direction="forward"][hide] {
+        transformed(translate(-100%, 0));
+      }
+    }
+    &[transition-type="slide-up"] {
+      &[transition-direction="forward"],
+      &[transition-direction="reverse"][hide] {
+        transformed(translate(0, 100%));
+      }
+      &[transition-direction="reverse"],
+      &[transition-direction="forward"][hide] {
+        transformed(translate(0, -100%));
+      }
+    }
+    &[transition-type="slide-down"] {
+      &[transition-direction="forward"],
+      &[transition-direction="reverse"][hide] {
+        transformed(translate(0, -100%));
+      }
+      &[transition-direction="reverse"],
+      &[transition-direction="forward"][hide] {
+        transformed(translate(0, 100%));
+      }
+    }
+    &[transition-type^="slide"][transition] {
+      transformed(translate(0, 0));
+    }
+  }
 }
