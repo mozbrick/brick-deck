@@ -45,6 +45,16 @@
     }
   }
 
+
+  var card = document.createElement('brick-card');
+  //ensure the children is a brick-card (or wraps it with one)
+  function ensureIsCard(child){
+    if(child.tagName !== 'BRICK-CARD'){
+      var wrap = card.cloneNode();
+      child.parentNode.replaceChild(wrap, child);
+      wrap.appendChild(child);
+    }
+  }
   // check if a card is a card in a deck
   function checkCard(deck, card){
     return card &&
@@ -67,6 +77,22 @@
 
   BrickDeckElementPrototype.createdCallback = function() {
     this.ns = {};
+    var children = this.children, i, max;
+
+    for(i=0, max=children.length; i<max; i++){
+      ensureIsCard(children[i]);
+    }
+
+    var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        var added = mutation.addedNodes || [];
+        for(var i=0, max=added.length; i<max; i++){
+          ensureIsCard(added[i]);
+        }
+      });
+    });
+
+    observer.observe(this, { childList: true });
   };
 
   BrickDeckElementPrototype.attachedCallback = function() {
