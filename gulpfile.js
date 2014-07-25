@@ -15,8 +15,7 @@ var paths = {
   'stylesheets': 'src/*.styl',
   'src': 'src/*',
   'index': 'index.html',
-  'bowerComponents': 'bower_components/**/*',
-  'testfiles': ['test/*', 'bower_components/platform/platform.js']
+  'bowerComponents': 'bower_components/**/*'
 };
 
 gulp.task('lint', function() {
@@ -53,7 +52,7 @@ gulp.task('server', ['build','connect','watch']);
 
 // run the tests
 gulp.task('test', function() {
-  return gulp.src(paths.testfiles)
+  return gulp.src('./notexists') // set up tests in karma.conf
     .pipe(karma({
       configFile: 'karma.conf.js',
       action: 'run'
