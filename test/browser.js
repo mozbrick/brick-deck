@@ -48,6 +48,7 @@ describe("brick-deck", function(){
     for (i = 0; i < cards.length; i++) {
       deck.appendChild(cards[i]);
     }
+
     document.body.appendChild(deck);
   });
 
@@ -211,6 +212,39 @@ describe("brick-deck", function(){
 
   });
 
+  describe("should allow any element as a child", function(){
+    it("automatically wraps non brick-card elements inside light dom", function(done){
+      var tmp = document.createElement('div');
+      tmp.innerHTML = '<brick-deck><section>1</section><div>2</div></brick-deck>';
+      document.body.appendChild(tmp);
+
+      var poll = function(){
+        if (tmp.firstChild.children[1].tagName === 'BRICK-CARD'){ // this will be DIV until after ready is finished.
+          expect(tmp.firstChild.children[1].tagName).to.be.equal('BRICK-CARD');
+          document.body.removeChild(tmp)
+          done();
+        } else {
+          setTimeout(poll, 100);
+        }
+      }
+      poll();
+    })
+
+    it("automatically wraps new non brick-card elements", function(done){
+      var deck = document.getElementById('deck');
+      var div = document.createElement('div');
+      deck.appendChild(div);
+
+      var poll = function(){
+        if(div.parentNode.tagName === 'BRICK-CARD'){
+          expect(div.parentNode.tagName).to.be.equal('BRICK-CARD');
+          done();
+        }else{
+          setTimeout(poll, 100);
+        }
+      }
+      poll();
+
+    })
+  })
 });
-
-
