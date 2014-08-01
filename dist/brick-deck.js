@@ -85,6 +85,8 @@
 ;
 (function () {
 
+  var currentScript = document._currentScript || document.currentScript;
+
   var requestAnimationFrame = window.requestAnimationFrame ||
                               window.webkitRequestAnimationFrame ||
                               function (fn) { setTimeout(fn, 16); };
@@ -181,6 +183,25 @@
   };
 
   BrickDeckElementPrototype.attachedCallback = function() {
+
+    var importDoc = currentScript.ownerDocument;
+    var template = importDoc.querySelector('template');
+
+    // fix styling for polyfill
+    if (Platform.ShadowCSS) {
+      var styles = template.content.querySelectorAll('style');
+      for (var i = 0; i < styles.length; i++) {
+        var style = styles[i];
+        var cssText = Platform.ShadowCSS.shimStyle(style, 'brick-deck');
+        Platform.ShadowCSS.addCssToDocument(cssText);
+        style.remove();
+      }
+    }
+
+    // create shadowRoot and append template to it.
+    var shadowRoot = this.createShadowRoot();
+    shadowRoot.appendChild(template.content.cloneNode(true));
+
     this.revealHandler = delegate('brick-card', function(e) {
       e.currentTarget.showCard(this);
     });
@@ -225,6 +246,7 @@
     var selectedCard = this.ns.selectedCard;
     var currentIndex = indexOfCard(this, selectedCard);
     var nextIndex = indexOfCard(this, card);
+    console.log(nextIndex, currentIndex, selectedCard);
     if (!direction) {
       direction = nextIndex > currentIndex ? 'forward' : 'reverse';
       // if looping is turned on, check if the other way round is shorter
@@ -289,6 +311,7 @@
       card.dispatchEvent(new CustomEvent('hide',{'bubbles': true}));
     }
   };
+
 
   // Property handlers
   Object.defineProperties(BrickDeckElementPrototype, {
