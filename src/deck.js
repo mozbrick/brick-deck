@@ -161,7 +161,6 @@
     var selectedCard = this.ns.selectedCard;
     var currentIndex = indexOfCard(this, selectedCard);
     var nextIndex = indexOfCard(this, card);
-    console.log(nextIndex, currentIndex, selectedCard);
     if (!direction) {
       direction = nextIndex > currentIndex ? 'forward' : 'reverse';
       // if looping is turned on, check if the other way round is shorter

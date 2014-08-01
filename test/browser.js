@@ -12,7 +12,7 @@ var cardCount = 10;
 
 window.addEventListener('WebComponentsReady', function() {
   // Add the HTMLImport for the custom element.
-  document.head.innerHTML += '<link rel="import" id="el" href="/base/src/brick-deck.html">';
+  document.head.innerHTML += '<link rel="import" id="el" href="/base/dist/brick-deck.local.html">';
   document.querySelector('#el').addEventListener('load', function() {
     ready();
   });
@@ -21,6 +21,7 @@ window.addEventListener('WebComponentsReady', function() {
 describe("brick-deck", function(){
 
   beforeEach(function(done){
+
     // Create the elements.
     var deck = document.createElement('brick-deck');
     deck.id = 'deck';
@@ -95,6 +96,9 @@ describe("brick-deck", function(){
 
   describe("the second card", function(){
     it("should not have attribute selected and show and css style display none", function(){
+
+      console.log(document.head.innerHTML);
+
       var deck = document.querySelector("brick-deck");
       var card = deck.cards[1];
       expect(window.getComputedStyle(card).display).to.equal("none");

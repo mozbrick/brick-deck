@@ -5,7 +5,7 @@ module.exports = function(config){
     files : [
       'bower_components/platform/platform.js',
       'test/browser.js',
-      {pattern: 'src/*', watched: true, included: false, served: true}
+      {pattern: 'dist/**/*', watched: true, included: false, served: true}
     ],
 
     autoWatch : true,
