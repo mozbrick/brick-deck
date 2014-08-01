@@ -172,6 +172,9 @@
       skipFrame(function(){ card.setAttribute('transition', ''); });
     } else {
       card.dispatchEvent(new CustomEvent('show',{'bubbles': true}));
+      if (hasTransition) {
+        card.setAttribute('transition', '');
+      }
     }
   };
 
@@ -185,8 +188,6 @@
     var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
     if (hasTransition) {
       // set attributes, set transitionend listener, skip a frame set transition attribute
-      card.setAttribute('hide', '');
-      card.setAttribute('transition-direction', direction || 'reverse');
       var transitionendHandler = function() {
         card.removeAttribute('hide');
         card.removeAttribute('transition');
@@ -195,7 +196,10 @@
         card.removeEventListener('transitionend', transitionendHandler);
       };
       card.addEventListener('transitionend', transitionendHandler);
-      skipFrame(function(){ card.setAttribute('transition', ''); });
+      skipFrame(function(){
+        card.setAttribute('transition-direction', direction || 'reverse');
+        card.setAttribute('hide', '');
+      });
     } else {
       card.dispatchEvent(new CustomEvent('hide',{'bubbles': true}));
     }
