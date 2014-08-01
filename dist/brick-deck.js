@@ -1,5 +1,93 @@
 (function () {
 
+  var BrickCardElementPrototype = Object.create(HTMLElement.prototype);
+
+  BrickCardElementPrototype.createdCallback = function () {
+    this.ns = {};
+  };
+
+  BrickCardElementPrototype.attachedCallback = function () {
+    var deck = this.parentNode;
+    if (deck.nodeName.toLowerCase() === 'brick-deck') {
+      this.ns.deck = deck;
+      if (this !== deck.selectedCard && this.selected) {
+        deck.showCard(this, {'skipTransition':true});
+      }
+    }
+  };
+
+  BrickCardElementPrototype.detachedCallback = function () {
+    var deck = this.ns.deck;
+    if (deck) {
+      if (this === deck.selectedCard) {
+        deck.selectedCard = null;
+        deck.removeAttribute('selected-index');
+      }
+      this.ns.deck = null;
+    }
+  };
+
+  BrickCardElementPrototype.attributeChangedCallback = function (attr, oldVal, newVal) {
+    if (attr in attrs) {
+      attrs[attr].call(this, oldVal, newVal);
+    }
+  };
+
+  // Attribute handlers
+  var attrs = {
+    'selected': function (oldVal, newVal) {
+      var deck = this.ns.deck;
+      if (!deck) { return; }
+      // check for null because empty string is true
+      // for our booleon attribute
+      if (newVal !== null) {
+        if (this !== deck.selectedCard) { deck.showCard(this); }
+      } else {
+        if (this === deck.selectedCard) { deck.hideCard(this); }
+      }
+    },
+  };
+
+  BrickCardElementPrototype.reveal = function() {
+    this.dispatchEvent(new CustomEvent("reveal",{bubbles: true}));
+  };
+
+  // Property handlers
+  Object.defineProperties(BrickCardElementPrototype, {
+    'selected': {
+      get : function () {
+        return this.hasAttribute('selected');
+      },
+      set : function (newVal) {
+        if (newVal) {
+          this.setAttribute('selected','');
+        } else {
+          this.removeAttribute('selected');
+        }
+      }
+    },
+    'transitionType': {
+      get: function() {
+        return this.getAttribute("transition-type");
+      },
+      set: function(newVal) {
+        this.setAttribute("transition-type", newVal);
+      }
+    }
+  });
+
+  // Register the element
+  window.BrickCardElement = document.registerElement('brick-card', {
+    prototype: BrickCardElementPrototype
+  });
+
+})();
+;
+/* global Platform */
+(function () {
+
+  var currentScript = document._currentScript || document.currentScript;
+
   var requestAnimationFrame = window.requestAnimationFrame ||
                               window.webkitRequestAnimationFrame ||
                               function (fn) { setTimeout(fn, 16); };
@@ -45,6 +133,16 @@
     }
   }
 
+
+  var card = document.createElement('brick-card');
+  //ensure the children is a brick-card (or wraps it with one)
+  function ensureIsCard(child){
+    if(child.tagName !== 'BRICK-CARD'){
+      var wrap = card.cloneNode();
+      child.parentNode.replaceChild(wrap, child);
+      wrap.appendChild(child);
+    }
+  }
   // check if a card is a card in a deck
   function checkCard(deck, card){
     return card &&
@@ -67,9 +165,44 @@
 
   BrickDeckElementPrototype.createdCallback = function() {
     this.ns = {};
+    var children = this.children, i, max;
+
+    for(i=0, max=children.length; i<max; i++){
+      ensureIsCard(children[i]);
+    }
+
+    var observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        var added = mutation.addedNodes || [];
+        for(var i=0, max=added.length; i<max; i++){
+          ensureIsCard(added[i]);
+        }
+      });
+    });
+
+    observer.observe(this, { childList: true });
   };
 
   BrickDeckElementPrototype.attachedCallback = function() {
+
+    var importDoc = currentScript.ownerDocument;
+    var template = importDoc.querySelector('template');
+
+    // fix styling for polyfill
+    if (Platform.ShadowCSS) {
+      var styles = template.content.querySelectorAll('style');
+      for (var i = 0; i < styles.length; i++) {
+        var style = styles[i];
+        var cssText = Platform.ShadowCSS.shimStyle(style, 'brick-deck');
+        Platform.ShadowCSS.addCssToDocument(cssText);
+        style.remove();
+      }
+    }
+
+    // create shadowRoot and append template to it.
+    var shadowRoot = this.createShadowRoot();
+    shadowRoot.appendChild(template.content.cloneNode(true));
+
     this.revealHandler = delegate('brick-card', function(e) {
       e.currentTarget.showCard(this);
     });
@@ -134,20 +267,22 @@
     this.ns.selectedIndex = nextIndex;
     this.setAttribute("selected-index", nextIndex);
     if (!card.selected) { card.selected = true; }
+    card.removeAttribute("hide"); // be safe
     var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
     if (!skipTransition && hasTransition) {
       // set attributes, set transitionend listener, skip a frame set transition attribute
-      card.setAttribute('show','');
       card.setAttribute('transition-direction', direction);
       var transitionendHandler = function() {
-        card.removeAttribute("show");
         card.dispatchEvent(new CustomEvent('show',{'bubbles': true}));
         card.removeEventListener('transitionend', transitionendHandler);
       };
       card.addEventListener('transitionend', transitionendHandler);
-      skipFrame(function(){ card.setAttribute('transition', 'show'); });
+      skipFrame(function(){ card.setAttribute('transition', ''); });
     } else {
       card.dispatchEvent(new CustomEvent('show',{'bubbles': true}));
+      if (hasTransition) {
+        card.setAttribute('transition', '');
+      }
     }
   };
 
@@ -158,12 +293,9 @@
     }
     this.ns.selectedCard = null;
     if (card.selected) { card.selected = false; }
-    card.removeAttribute('show');
     var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
     if (hasTransition) {
       // set attributes, set transitionend listener, skip a frame set transition attribute
-      card.setAttribute('hide', '');
-      card.setAttribute('transition-direction', direction || 'reverse');
       var transitionendHandler = function() {
         card.removeAttribute('hide');
         card.removeAttribute('transition');
@@ -172,11 +304,15 @@
         card.removeEventListener('transitionend', transitionendHandler);
       };
       card.addEventListener('transitionend', transitionendHandler);
-      skipFrame(function(){ card.setAttribute('transition', 'show'); });
+      skipFrame(function(){
+        card.setAttribute('transition-direction', direction || 'reverse');
+        card.setAttribute('hide', '');
+      });
     } else {
       card.dispatchEvent(new CustomEvent('hide',{'bubbles': true}));
     }
   };
+
 
   // Property handlers
   Object.defineProperties(BrickDeckElementPrototype, {
