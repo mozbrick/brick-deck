@@ -182,6 +182,7 @@
     this.ns.selectedIndex = nextIndex;
     this.setAttribute("selected-index", nextIndex);
     if (!card.selected) { card.selected = true; }
+    card.removeAttribute("hide"); // be safe
     var hasTransition = card.hasAttribute('transition-type') || this.hasAttribute('transition-type');
     if (!skipTransition && hasTransition) {
       // set attributes, set transitionend listener, skip a frame set transition attribute
