@@ -12,10 +12,11 @@ module.exports = function(config){
 
     frameworks: ['mocha', 'chai'],
 
-    browsers : ['Firefox'],
+    browsers : ['Chrome', 'Firefox'],
 
     plugins : [
       'karma-firefox-launcher',
+      'karma-chrome-launcher',
       'karma-mocha',
       'karma-chai',
     ],

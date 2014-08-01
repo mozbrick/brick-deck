@@ -39,11 +39,11 @@ describe("brick-deck", function(){
     cards[0].setAttribute('selected','');
 
     // wait for the cards to be shown
-    cards[0].addEventListener("show",function(){
-      setTimeout(function () {
-        done();
-      }, 10);
-    });
+    var doneHandler = function(){
+      cards[0].removeEventListener("show", doneHandler);
+      done();
+    };
+    cards[0].addEventListener("show", doneHandler);
 
     // Add the custom elements to the page.
     for (i = 0; i < cards.length; i++) {
@@ -96,9 +96,6 @@ describe("brick-deck", function(){
 
   describe("the second card", function(){
     it("should not have attribute selected and show and css style display none", function(){
-
-      console.log(document.head.innerHTML);
-
       var deck = document.querySelector("brick-deck");
       var card = deck.cards[1];
       expect(window.getComputedStyle(card).display).to.equal("none");
@@ -117,65 +114,95 @@ describe("brick-deck", function(){
       oldCard = deck.cards[oldIndex];
     });
 
-    it("should work using the showCard() function", function(){
+    it("should work using the showCard() function", function(done){
       deck.showCard(newIndex);
-      expect(window.getComputedStyle(oldCard).display).to.equal("none");
-      expect(oldCard.getAttribute("selected")).to.be.null;
-      expect(window.getComputedStyle(newCard).display).not.to.equal("none");
-      expect(newCard.getAttribute("selected")).not.to.be.null;
+      oldCard.addEventListener('transitionend', function(){
+        expect(window.getComputedStyle(oldCard).display).to.equal("none");
+        expect(oldCard.getAttribute("selected")).to.be.null;
+        expect(window.getComputedStyle(newCard).display).not.to.equal("none");
+        expect(newCard.getAttribute("selected")).not.to.be.null;
+        done();
+      });
     });
 
-    it("should work by changing the selected-index attribute", function(){
+    it("should work by changing the selected-index attribute", function(done){
       deck.setAttribute("selected-index", newIndex);
-      expect(window.getComputedStyle(oldCard).display).to.equal("none");
-      expect(oldCard.getAttribute("selected")).to.be.null;
-      expect(window.getComputedStyle(newCard).display).not.to.equal("none");
-      expect(newCard.getAttribute("selected")).not.to.be.null;
+      oldCard.addEventListener('transitionend', function(){
+        expect(window.getComputedStyle(oldCard).display).to.equal("none");
+        expect(oldCard.getAttribute("selected")).to.be.null;
+        expect(window.getComputedStyle(newCard).display).not.to.equal("none");
+        expect(newCard.getAttribute("selected")).not.to.be.null;
+        done();
+      });
     });
 
-    it("should work by changing the selectedIndex property", function(){
+    it("should work by changing the selectedIndex property", function(done){
       deck.selectedIndex = newIndex;
-      expect(window.getComputedStyle(oldCard).display).to.equal("none");
-      expect(oldCard.getAttribute("selected")).to.be.null;
-      expect(window.getComputedStyle(newCard).display).not.to.equal("none");
-      expect(newCard.getAttribute("selected")).not.to.be.null;
+      deck.setAttribute("selected-index", newIndex);
+      oldCard.addEventListener('transitionend', function(){
+        expect(window.getComputedStyle(oldCard).display).to.equal("none");
+        expect(oldCard.getAttribute("selected")).to.be.null;
+        expect(window.getComputedStyle(newCard).display).not.to.equal("none");
+        expect(newCard.getAttribute("selected")).not.to.be.null;
+        done();
+      });
     });
 
-    it("should work by triggering reveal on a card", function(){
+    it("should work by triggering reveal on a card", function(done){
       newCard.dispatchEvent(new CustomEvent("reveal",{bubbles: true}));
-      expect(window.getComputedStyle(oldCard).display).to.equal("none");
-      expect(oldCard.getAttribute("selected")).to.be.null;
-      expect(window.getComputedStyle(newCard).display).not.to.equal("none");
-      expect(newCard.getAttribute("selected")).not.to.be.null;
+      deck.setAttribute("selected-index", newIndex);
+      oldCard.addEventListener('transitionend', function(){
+        expect(window.getComputedStyle(oldCard).display).to.equal("none");
+        expect(oldCard.getAttribute("selected")).to.be.null;
+        expect(window.getComputedStyle(newCard).display).not.to.equal("none");
+        expect(newCard.getAttribute("selected")).not.to.be.null;
+        done();
+      });
     });
 
-    it("should work by setting selected attribute on a card", function(){
+    it("should work by setting selected attribute on a card", function(done){
       newCard.setAttribute("selected","");
-      expect(window.getComputedStyle(oldCard).display).to.equal("none");
-      expect(oldCard.getAttribute("selected")).to.be.null;
-      expect(window.getComputedStyle(newCard).display).not.to.equal("none");
-      expect(newCard.getAttribute("selected")).not.to.be.null;
+      deck.setAttribute("selected-index", newIndex);
+      oldCard.addEventListener('transitionend', function(){
+        expect(window.getComputedStyle(oldCard).display).to.equal("none");
+        expect(oldCard.getAttribute("selected")).to.be.null;
+        expect(window.getComputedStyle(newCard).display).not.to.equal("none");
+        expect(newCard.getAttribute("selected")).not.to.be.null;
+        done();
+      });
     });
 
-    it("should work by setting selected property on a card", function(){
+    it("should work by setting selected property on a card", function(done){
       newCard.selected = true;
-      expect(window.getComputedStyle(oldCard).display).to.equal("none");
-      expect(oldCard.getAttribute("selected")).to.be.null;
-      expect(window.getComputedStyle(newCard).display).not.to.equal("none");
-      expect(newCard.getAttribute("selected")).not.to.be.null;
+      deck.setAttribute("selected-index", newIndex);
+      oldCard.addEventListener('transitionend', function(){
+        expect(window.getComputedStyle(oldCard).display).to.equal("none");
+        expect(oldCard.getAttribute("selected")).to.be.null;
+        expect(window.getComputedStyle(newCard).display).not.to.equal("none");
+        expect(newCard.getAttribute("selected")).not.to.be.null;
+        done();
+      });
     });
 
-    it("should work by using nextCard and previousCard", function(){
+    it("should work by using nextCard", function(done){
       deck.nextCard();
-      expect(window.getComputedStyle(oldCard).display).to.equal("none");
-      expect(oldCard.getAttribute("selected")).to.be.null;
-      expect(window.getComputedStyle(newCard).display).not.to.equal("none");
-      expect(newCard.getAttribute("selected")).not.to.be.null;
-      deck.previousCard();
-      expect(window.getComputedStyle(newCard).display).to.equal("none");
-      expect(newCard.getAttribute("selected")).to.be.null;
-      expect(window.getComputedStyle(oldCard).display).not.to.equal("none");
-      expect(oldCard.getAttribute("selected")).not.to.be.null;
+      var prevListener = function(){
+       expect(window.getComputedStyle(oldCard).display).not.to.equal("none");
+        expect(oldCard.getAttribute("selected")).not.to.be.null;
+        expect(window.getComputedStyle(newCard).display).to.equal("none");
+        expect(newCard.getAttribute("selected")).to.be.null;
+        done();
+      };
+      var nextListener = function(){
+        expect(window.getComputedStyle(oldCard).display).to.equal("none");
+        expect(oldCard.getAttribute("selected")).to.be.null;
+        expect(window.getComputedStyle(newCard).display).not.to.equal("none");
+        expect(newCard.getAttribute("selected")).not.to.be.null;
+        oldCard.removeEventListener("transitionend", nextListener);
+        oldCard.addEventListener("transitionend", prevListener);
+        deck.previousCard();
+      };
+      oldCard.addEventListener("transitionend", nextListener);
     });
 
     it("should emit a transitionend event on the old card", function(done){
@@ -225,14 +252,14 @@ describe("brick-deck", function(){
       var poll = function(){
         if (tmp.firstChild.children[1].tagName === 'BRICK-CARD'){ // this will be DIV until after ready is finished.
           expect(tmp.firstChild.children[1].tagName).to.be.equal('BRICK-CARD');
-          document.body.removeChild(tmp)
+          document.body.removeChild(tmp);
           done();
         } else {
           setTimeout(poll, 100);
         }
-      }
+      };
       poll();
-    })
+    });
 
     it("automatically wraps new non brick-card elements", function(done){
       var deck = document.getElementById('deck');
@@ -246,9 +273,9 @@ describe("brick-deck", function(){
         }else{
           setTimeout(poll, 100);
         }
-      }
+      };
       poll();
 
-    })
-  })
+    });
+  });
 });
