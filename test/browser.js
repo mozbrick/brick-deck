@@ -277,5 +277,42 @@ describe("brick-deck", function(){
       poll();
 
     });
+
+    it("should copy over select attribute if present", function(done){
+      var deck = document.getElementById('deck');
+      var div = document.createElement('div');
+      div.setAttribute('selected', 'selected')
+      deck.appendChild(div);
+
+      var poll = function(){
+        if(div.parentNode.tagName === 'BRICK-CARD'){
+          expect(div.parentNode.tagName).to.be.equal('BRICK-CARD');
+          expect(div.parentNode.getAttribute('selected')).to.be.equal('selected');
+          done();
+        }else{
+          setTimeout(poll, 100);
+        }
+      };
+      poll();
+    });
+
+    it("should copy over transition-type attribute if present", function(done){
+      var deck = document.getElementById('deck');
+      var div = document.createElement('div');
+      div.setAttribute('transition-type', 'slide-down')
+      deck.appendChild(div);
+
+      var poll = function(){
+        if(div.parentNode.tagName === 'BRICK-CARD'){
+          expect(div.parentNode.tagName).to.be.equal('BRICK-CARD');
+          expect(div.parentNode.getAttribute('transition-type')).to.be.equal('slide-down');
+          done();
+        }else{
+          setTimeout(poll, 100);
+        }
+      };
+      poll();
+    });
   });
+
 });
