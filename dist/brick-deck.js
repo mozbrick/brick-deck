@@ -77,9 +77,11 @@
   });
 
   // Register the element
-  window.BrickCardElement = document.registerElement('brick-card', {
-    prototype: BrickCardElementPrototype
-  });
+  if (!window.BrickCardElement) {
+    window.BrickCardElement = document.registerElement('brick-card', {
+      prototype: BrickCardElementPrototype
+    });
+  }
 
 })();
 ;
@@ -382,8 +384,10 @@
   });
 
   // Register the element
-  window.BrickDeckElement = document.registerElement('brick-deck', {
-    prototype: BrickDeckElementPrototype
-  });
+  if (!window.BrickDeckElement) {
+    window.BrickDeckElement = document.registerElement('brick-deck', {
+      prototype: BrickDeckElementPrototype
+    });
+  }
 
 })();

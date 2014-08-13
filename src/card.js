@@ -77,8 +77,10 @@
   });
 
   // Register the element
-  window.BrickCardElement = document.registerElement('brick-card', {
-    prototype: BrickCardElementPrototype
-  });
+  if (!window.BrickCardElement) {
+    window.BrickCardElement = document.registerElement('brick-card', {
+      prototype: BrickCardElementPrototype
+    });
+  }
 
 })();
