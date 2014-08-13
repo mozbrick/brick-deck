@@ -297,8 +297,10 @@
   });
 
   // Register the element
-  window.BrickDeckElement = document.registerElement('brick-deck', {
-    prototype: BrickDeckElementPrototype
-  });
+  if (!window.BrickDeckElement) {
+    window.BrickDeckElement = document.registerElement('brick-deck', {
+      prototype: BrickDeckElementPrototype
+    });
+  }
 
 })();
