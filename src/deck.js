@@ -93,7 +93,7 @@
 
     for(i=0, max=children.length; i<max; i++){
       ensureIsCard(children[i]);
-      anyChildSelected = anyChildSelected || children[i].hasAttribute('selected')
+      anyChildSelected = anyChildSelected || children[i].hasAttribute('selected');
     }
 
     var observer = new MutationObserver(function(mutations) {
